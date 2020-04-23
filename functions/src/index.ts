@@ -24,7 +24,10 @@ app.get("/screams", (req, res) => {
 		.then((snapshot) => {
 			let screams: FirebaseFirestore.DocumentData = [];
 			snapshot.forEach((doc) => {
-				screams.push(doc.data());
+				screams.push({
+					screamId: doc.id,
+					...doc.data(),
+				});
 			});
 			return res.json(screams);
 		})
