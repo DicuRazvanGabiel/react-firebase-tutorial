@@ -3,13 +3,20 @@ import * as admin from "firebase-admin";
 
 import { Scream } from "./Scream.model";
 
-admin.initializeApp();
-const db = admin.firestore();
-// export const helloWorld = functions.https.onRequest((request, response) => {
-// 	response.send("Hello Worls with Typescript");
-// });
+const serviceAccount = require("../social-ape-78338-firebase-adminsdk-7kiq7-7fe7d0a9a8.json");
 
-export const getScreams = functions.https.onRequest((req, res) => {
+admin.initializeApp({
+	credential: admin.credential.cert(serviceAccount),
+	databaseURL: "https://social-ape-78338.firebaseio.com",
+});
+
+const db = admin.firestore();
+
+import * as express from "express";
+
+const app = express();
+
+app.get("/screams", (req, res) => {
 	admin
 		.firestore()
 		.collection("screams")
@@ -26,7 +33,7 @@ export const getScreams = functions.https.onRequest((req, res) => {
 		});
 });
 
-export const createScream = functions.https.onRequest((req, res) => {
+app.post("/screams", (req, res) => {
 	const newScream: Scream = {
 		body: req.body.body,
 		userHandler: req.body.userHandler,
@@ -43,3 +50,5 @@ export const createScream = functions.https.onRequest((req, res) => {
 			res.status(500).json({ message: "something when wrong" });
 		});
 });
+
+exports.api = functions.https.onRequest(app);
